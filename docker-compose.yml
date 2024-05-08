@@ -9,7 +9,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DATABASE_URL="postgresql://postgres:1234@db:5432/FastifyProject?schema=public" # Update the database URL
+      - DATABASE_URL="postgresql://postgres:1234@db:5432/FastifyProject?schema=public"
     depends_on:
       - db
       - judge0
@@ -55,7 +55,7 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Mount the nginx configuration file
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - "80:80"
     depends_on:
