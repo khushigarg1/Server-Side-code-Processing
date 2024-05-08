@@ -1,9 +1,9 @@
 # Services
 services:
   # Server service
-  server:
+  api:
     build:
-      context: ./server
+      context: ./api-server
       dockerfile: Dockerfile
     container_name: backend
     ports:
@@ -23,7 +23,7 @@ services:
     ports:
       - "2000:3000"
     depends_on:
-      - server
+      - api
 
   # Database service
   db:
@@ -42,7 +42,7 @@ services:
     volumes:
       - ./judge0.conf:/judge0.conf:ro
     ports:
-      - "1234:2358"
+      - "1235:2358"
     privileged: true
     logging:
       driver: json-file
@@ -61,4 +61,4 @@ services:
       - "8008:80"
     depends_on:
       - client
-      - server
+      - api
