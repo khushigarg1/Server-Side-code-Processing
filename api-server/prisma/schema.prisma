@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Test {
+  id            Int          @id @default(autoincrement())
+  testName      String
+  testDuration  Int
+  numOfQuestion Int
+  group         String?
+  status        String
+  User          User[]
+  Question      Question[]
+  Scoreboard    Scoreboard[]
+  createdAt     DateTime     @default(now())
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  name         String?
+  email        String 
+  password     String
+  customValues Json?
+  test         Test?        @relation(fields: [testId], references: [id])
+  testId       Int?
+  Scoreboard   Scoreboard[]
+  @@unique([email, testId], name: "UniqueEmailTestId")
+  createdAt     DateTime     @default(now())
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  createdAt     DateTime     @default(now())
+}
+
+model Question {
+  id         Int          @id @default(autoincrement())
+  testId     Int
+  test       Test         @relation(fields: [testId], references: [id])
+  statement  String
+  TestCase   TestCase[]
+  Scoreboard Scoreboard[]
+  createdAt     DateTime     @default(now())
+}
+
+model TestCase {
+  id            Int             @id @default(autoincrement())
+  question_id   Int
+  question      Question        @relation(fields: [question_id], references: [id])
+  input         String
+  output        String
+  hidden        Boolean         @default(true)
+  SubmissionRun SubmissionRun[]
+  createdAt     DateTime     @default(now())
+}
+
+
+model Scoreboard {
+  id                   Int             @id @default(autoincrement())
+  user_id              Int
+  test_id              Int
+  question_id          Int
+  question_language    String
+  total_num_testcases  Int
+  num_testcases_passed Int
+  user                 User            @relation(fields: [user_id], references: [id])
+  test                 Test            @relation(fields: [test_id], references: [id])
+  question             Question        @relation(fields: [question_id], references: [id])
+  SubmissionRun        SubmissionRun[]
+  createdAt     DateTime     @default(now())
+}
+
+model SubmissionRun {
+  id            Int        @id @default(autoincrement())
+  testcase_id   Int
+  status        String
+  error         String?
+  scoreboard_id Int
+  testcase      TestCase   @relation(fields: [testcase_id], references: [id])
+  scoreboard    Scoreboard @relation(fields: [scoreboard_id], references: [id])
+  createdAt     DateTime     @default(now())
+}
+
+model Configuration {
+  id              Int   @id @default(autoincrement())
+  cpu_time_limit  Float
+  wall_time_limit Float
+  memory_limit    Float
+  createdAt     DateTime     @default(now())
+}

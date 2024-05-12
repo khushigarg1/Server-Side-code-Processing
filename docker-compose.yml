@@ -1,0 +1,64 @@
+# Services
+services:
+  # Server service
+  api:
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL="postgresql://postgres:1234@db:5432/FastifyProject?schema=public"
+    depends_on:
+      - db
+      - judge0
+
+  # Client service
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "2000:3000"
+    depends_on:
+      - api
+
+  # Database service
+  db:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=FastifyProject
+    ports:
+      - "5432:5432"
+
+  # Judge0 service
+  judge0:
+    image: judge0/judge0:1.13.0
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    ports:
+      - "1235:2358"
+    privileged: true
+    logging:
+      driver: json-file
+      options:
+        max-size: 100m
+    restart: always
+
+  # Nginx service
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "8008:80"
+    depends_on:
+      - client
+      - api
